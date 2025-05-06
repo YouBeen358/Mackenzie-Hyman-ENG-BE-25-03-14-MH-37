@@ -1,0 +1,439 @@
+---
+title: "Brain"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(lme4)
+library(stats)
+```
+
+
+
+```{r pressure, echo=FALSE}
+dfsame <- read_excel("lmm_test1_same_id.xlsx", sheet = "retardance")
+dfsame$subID <- as.factor(dfsame$subID)
+
+df_sub4 <- dfsame[dfsame$subID == 4, ]
+
+mean_OP <- mean(df_sub4$OpticalProperty, na.rm = TRUE)
+sd_OP <- sd(df_sub4$OpticalProperty, na.rm = TRUE)
+dfsame$Groups <- as.factor(dfsame$Groups)
+df_sub4 <- df_sub4 %>%
+  filter(OpticalProperty<(75))
+
+
+df_other <- dfsame[dfsame$subID != 4, ]
+
+dfsame <- rbind(df_other, df_sub4)
+
+
+model <- glm(
+  OpticalProperty ~ Groups+Region + subID,
+  data = dfsame,
+  family = "gaussian")
+summary(model)
+
+dfsame$resid <- residuals(model)
+dfsame$fitted <- fitted(model)
+
+ggplot(dfsame, aes(x = fitted, y = resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Residuals vs Fitted", x = "Fitted", y = "Residuals")
+
+summary(gamma_mixed)
+
+par(mfrow = c(2, 2))
+gam.check(gam_re_model_yj)
+
+# Or, with ggplot:
+dfsame$resid <- residuals(gam_re_model_yj)
+dfsame$fitted <- fitted(gam_re_model_yj)
+
+ggplot(dfsame, aes(x = fitted, y = resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Residuals vs Fitted", x = "Fitted", y = "Residuals")
+
+lmm_model_same <- lmer(sqrt(OpticalProperty) ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model_brain <- lmer(sqrt(OpticalProperty) ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_brain)
+
+anova(lmm_model_same, lmm_model_brain)
+
+library(MASS)
+# After fitting your LMM model (lmm_model)
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+
+```
+
+
+```{r}
+dfsame <- read_excel("lmm_test1_same_id.xlsx", sheet = "retardance")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+anova(lmm_model_same, lmm_model2_brain)
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+```
+
+```{r}
+dfsame <- read_excel("lmm_test1_same_id.xlsx", sheet = "orientation")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+anova(lmm_model_same, lmm_model2_brain)
+
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+```
+
+```{r}
+dfsame <- read_excel("lmm_test2_same_id.xlsx", sheet = "scattering")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+anova(lmm_model_same, lmm_model2_brain)
+
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+```
+
+
+```{r}
+dfsame <- read_excel("lmm_test2_same_id.xlsx", sheet = "retardance")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+anova(lmm_model_same, lmm_model2_brain)
+
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+```
+
+
+
+```{r}
+dfsame <- read_excel("lmm_test2_same_id.xlsx", sheet = "orientation")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+anova(lmm_model_same, lmm_model2_brain)
+
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+```
+
+
+
+```{r}
+dfsame <- read_excel("lmm_test3_same_id.xlsx", sheet = "scattering")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+```
+
+
+
+```{r}
+dfsame <- read_excel("lmm_test3_same_id.xlsx", sheet = "retardance")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+
+```
+
+
+
+```{r}
+dfsame <- read_excel("lmm_test3_same_id.xlsx", sheet = "orientation")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+
+
+lmm_model_same <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model_same)
+
+
+lmm_model2_brain <- lmer(OpticalProperty ~ Groups * Region + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2_brain)
+
+
+residuals <- residuals(lmm_model_same)
+fitted_values <- fitted(lmm_model_same)
+
+# Residuals vs Fitted Plot
+plot(fitted_values, residuals)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+residuals2 <- residuals(lmm_model_brain)
+fitted_values2 <- fitted(lmm_model_brain)
+
+# Residuals vs Fitted Plot
+plot(fitted_values2, residuals2)
+abline(h = 0, col = "red")
+
+# Q-Q Plot for Normality of Residuals
+qqnorm(residuals2)
+qqline(residuals2, col = "red")
+```
+```{r}
+library(glmmTMB)
+dfsame <- read_excel("lmm_test1_same_id.xlsx", sheet = "orientation")
+dfsame$subID <- as.factor(dfsame$subID)
+dfsame$Groups <- as.factor(dfsame$Groups)
+dfsame$Region <- as.factor(dfsame$Region)
+
+dfsame$OpticalProperty <- round(dfsame$OpticalProperty)
+# Full zero-inflated model
+zinb_model <- glmmTMB(OpticalProperty ~ Groups + Region+subID,
+                     ziformula = ~ Groups,
+                     family = nbinom2,
+                     data = dfsame)
+
+summary_output <- summary(zinb_model)
+
+# Round coefficients
+round(summary_output$coefficients$cond, 2)  # Count model part
+round(summary_output$coefficients$zi, 2)    # Zero-inflation model part
+
+```
+

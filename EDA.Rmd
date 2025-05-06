@@ -1,0 +1,222 @@
+---
+title: "Consulting Optical Properties"
+author: "Luke Ladd"
+date: "2025-04-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r }
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(lme4)
+library(stats)
+```
+
+
+
+```{r pressure, echo=FALSE}
+dfsame <- read_excel("lmm_test1_same_id.xlsx", sheet = "scattering")
+dfsame$subID <- as.factor(dfsame$subID)
+
+
+```
+
+
+```{r}
+
+df_sub4 <- dfsame[dfsame$subID == 4, ]
+
+Q1 <- quantile(df_sub4$OpticalProperty, 0.25)
+Q3 <- quantile(df_sub4$OpticalProperty, 0.75)
+IQR <- Q3 - Q1
+lower_bound <- Q1 - 1.5 * IQR
+upper_bound <- Q3 + 1.5 * IQR
+
+df_sub4_clean <- df_sub4[df_sub4$OpticalProperty >= lower_bound & df_sub4$OpticalProperty <= upper_bound, ]
+
+df_other <- dfsame[dfsame$subID != 4, ]
+
+dfsame <- rbind(df_other, df_sub4_clean)
+
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Scattering by Group", x = "Group", y = "Scattering")
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_violin(trim = FALSE, alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Scattering Density by Group", x = "Group", y = "Scattering")
+
+ggplot(dfsame, aes(x = OpticalProperty, fill = Groups)) +
+  geom_density(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Scattering Distribution by Group", x = "Scattering", y = "Density")
+
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_boxplot() +
+  facet_wrap(~ subID, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Scattering by Group for Each Subject", x = "Group", y = "Scattering")
+
+ggplot(dfsame,aes(x=subID,y=OpticalProperty,fill=Groups))+
+  geom_boxplot()+
+  theme_minimal()+
+  labs(title = "Scattering by Subject and Group", x = "Subject ID", y = "Scattering")
+
+df_summary <- dfsame %>%
+  group_by(subID, Groups) %>%
+  summarise(mean = mean(OpticalProperty, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(df_summary, aes(x = subID, y = mean, fill = Groups)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Mean Scattering by Subject ID and Group",
+       x = "Subject ID", y = "Mean Scattering") +
+  theme_minimal()
+
+
+
+```
+
+
+```{r}
+dfsame <- read_excel("lmm_test1_same_id.xlsx", sheet = "retardance")
+dfsame$subID <- as.factor(dfsame$subID)
+```
+
+```{r}
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Retardance by Group", x = "Group", y = "Retardance")
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_violin(trim = FALSE, alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Retardance Density by Group", x = "Group", y = "Retardance")
+
+ggplot(dfsame, aes(x = OpticalProperty, fill = Groups)) +
+  geom_density(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Retardance Distribution by Group", x = "Retardance", y = "Density")
+
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_boxplot() +
+  facet_wrap(~ subID, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Retardance by Group for Each Subject", x = "Group", y = "Retardance")
+
+ggplot(dfsame,aes(x=subID,y=OpticalProperty,fill=Groups))+
+  geom_boxplot()+
+  theme_minimal()+
+  labs(title = "Retardance by Subject and Group", x = "Subject ID", y = "Retardance")
+
+df_summary <- dfsame %>%
+  group_by(subID, Groups) %>%
+  summarise(mean = mean(OpticalProperty, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(df_summary, aes(x = subID, y = mean, fill = Groups)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Mean Retardance by Subject ID and Group",
+       x = "Subject ID", y = "Mean Retardance") +
+  theme_minimal()
+
+
+
+
+```
+
+
+```{r}
+dfsame <- read_excel("lmm_test1_same_id.xlsx", sheet = "orientation")
+dfsame$subID <- as.factor(dfsame$subID)
+```
+
+
+```{r}
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Orientation by Group", x = "Group", y = "Orientation")
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_violin(trim = FALSE, alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Orientation Density by Group", x = "Group", y = "Orientation")
+
+ggplot(dfsame, aes(x = OpticalProperty, fill = Groups)) +
+  geom_density(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Orientation Distribution by Group", x = "Orientation", y = "Density")
+
+ggplot(dfsame, aes(x = Groups, y = OpticalProperty, fill = Groups)) +
+  geom_boxplot() +
+  facet_wrap(~ subID, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Orientation by Group for Each Subject", x = "Group", y = "Orientation")
+
+
+
+ggplot(dfsame,aes(x=subID,y=OpticalProperty,fill=Groups))+
+  geom_boxplot()+
+  theme_minimal()+
+  labs(title = "Orientation by Subject and Group", x = "Subject ID", y = "Orientation")
+
+df_summary <- dfsame %>%
+  group_by(subID, Groups) %>%
+  summarise(mean = mean(OpticalProperty, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(df_summary, aes(x = subID, y = mean, fill = Groups)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Mean Orientation by Subject ID and Group",
+       x = "Subject ID", y = "Mean Orientation") +
+  theme_minimal()
+
+```
+
+
+
+```{r}
+dfsame$Groups <- as.factor(dfsame$Groups)
+dfsame$Region <- as.factor(dfsame$Region)
+
+summary(dfsame)
+
+```
+
+
+```{r}
+
+lmm_model <- lmer(OpticalProperty ~ Groups + (1 | subID), data = dfsame,REML = FALSE)
+summary(lmm_model)
+
+lmm_model2 <- lmer(OpticalProperty ~ Groups + (Groups | subID), data = dfsame,REML = FALSE)
+summary(lmm_model2)
+
+anova(lmm_model, lmm_model2)
+
+
+
+```
+
+
+
